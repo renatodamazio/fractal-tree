@@ -5,46 +5,96 @@
 </head>
 <body>
 
-<canvas id="canvas" width="600" height="500"></canvas>
+<style type="text/css">
+	*{
+		margin: 0;
+		padding: 0;
+	}
+	html,body{
+		width: 100%;
+		height: 100%;
+		background: #000;
+	}
 
-<input type="range" name="" id="lineWidth">
-<input type="range" name="" id="branches">
+	.control-panel{
+		padding: 9px;
+		width: 300px;
+		position: absolute;
+		top: 4px;
+		left: 4px;
+		border: 1px solid #fff;
+		border-radius: 3px;
+		background: rgba(39, 34, 34, 0.50);
+	}
+
+	.control-panel span, 
+	.control-panel label {
+		width: 100%;
+		float: left;
+		padding: 3px;
+		color: #fff;
+	}
+
+	canvas {
+	    margin: 0 auto;
+	    position: relative;
+	    left: 50%;
+	    margin-left: -350px;
+	}
+</style>
+		
+<canvas id="canvas" width="700" height="600"></canvas>
 
 <script type="text/javascript">
 
 	var canvas = document.getElementById('canvas');
-	var range_width = document.getElementById('lineWidth');
-	var range_branches = document.getElementById('branches');
 	var ctx = canvas.getContext('2d');
-	var deg_to_rad = Math.PI / 180.0;
-	var depth = 9;
-	
-	ctx.fillStyle = '#000';
-	ctx.lineWidth = 1;
-	
-	function drawLine(x1, y1, x2, y2, brightness) {
 
-		ctx.moveTo(x1, y1);
-		ctx.lineTo(x2, y2);
-	
-	};
+	function draw(startX, startY, len, angle, branchWidth) {
 
-	function drawTree(x1, y1, angle, depth) {
-		if(depth !== 0) {
-			
-			var x2 = x1 + (Math.cos(angle * deg_to_rad) * depth * 10.0);
-			var y2 = y1 + (Math.sin(angle * deg_to_rad) * depth * 10.0); 
-			drawLine(x1, y1, x2, y2, depth);
-			drawTree(x2, y2, angle - 20, depth - 1);
-			drawTree(x2, y2, angle + 20, depth - 1);
-			
+		ctx.beginPath();
+		ctx.save();
+		ctx.lineWidth = branchWidth;
+		ctx.translate(startX, startY);
+		ctx.rotate(angle * Math.PI/180);
+		ctx.moveTo(0, 0);
+		
+		if(angle > 0) {
+			ctx.bezierCurveTo(10, -len/2, 10, -len/2, 0, -len);
+		} else {
+			ctx.bezierCurveTo(-10, -len/2, -10, -len/2, 0, -len);
 		}
+
+		ctx.strokeStyle = "brown";
+		ctx.fillStyle = "green";
+
+		ctx.shadowBlur = 15;
+		ctx.shadowColor = "rgba(0,0,0,0.8)";
+
+		ctx.stroke();
+
+		if(len < 10) {
+
+			ctx.beginPath();
+			ctx.arc(0, -len, 10, 0, Math.PI/2);
+			ctx.fillStyle ="pink";
+			ctx.strokeStyle = "red";
+			ctx.stroke();
+			ctx.fill();
+			ctx.restore();
+			return;
+		
+		};
+
+
+		draw(0, -len, len *0.8, angle+10, branchWidth*0.8);
+		draw(0, -len, len *0.8, angle-10, branchWidth*0.8);
+
+		ctx.restore();
 	};
 
-	ctx.beginPath();
-	drawTree(300, 500, -90, depth);
-	ctx.closePath();
-	ctx.stroke();
+	draw(350, 600, 120, 0, 10);
+
 </script>
  
 </body>
